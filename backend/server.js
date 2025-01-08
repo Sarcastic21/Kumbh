@@ -14,7 +14,7 @@ const app = express();
 
 // CORS options
 const allowedOrigins = [
-  'https://mahakumbh30.netlify.app',
+  'https://mahakumbh7.netlify.app',
   'http://localhost:3000',
 ];
 
