@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
 });
 
 // MongoDB Connection
-const mongoURI = process.env.MONGODB_URI || "mongodb+srv://ayush1:Ayush210704@cluster0.in8q5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const mongoURI = process.env.MONGODB_URI;
 mongoose
   .connect(mongoURI, {
     useNewUrlParser: true,
