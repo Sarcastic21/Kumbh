@@ -46,8 +46,7 @@ app.get('/', (req, res) => {
   res.send('Backend is running...');
 });
 
-// MongoDB Connection
-const mongoURI = process.env.MONGODB_URI;
+const mongoURI = process.env.MONGODB_URI || "mongodb+srv://ayush1:Ayush210704@cluster0.in8q5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 mongoose
   .connect(mongoURI, {
     useNewUrlParser: true,
@@ -55,7 +54,6 @@ mongoose
   })
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
-
 // Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
