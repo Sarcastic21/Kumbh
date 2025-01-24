@@ -14,7 +14,7 @@ const app = express();
 
 // CORS options
 const allowedOrigins = [
-  'https://mahakumbh7.netlify.app',
+  'https://kumbh-1.onrender.com',
   'http://localhost:3000',
 ];
 
