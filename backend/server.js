@@ -16,6 +16,7 @@ const app = express();
 const allowedOrigins = [
   'https://kumbh-1.onrender.com',
   'https://kumbh-2.onrender.com',
+  'https://kumbhtravels.netlify.app',
 ];
 
 app.use(
