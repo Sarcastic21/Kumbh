@@ -15,7 +15,7 @@ const app = express();
 // CORS options
 const allowedOrigins = [
   'https://kumbh-1.onrender.com',
-  'http://localhost:3000',
+  'https://kumbh-2.onrender.com',
 ];
 
 app.use(
