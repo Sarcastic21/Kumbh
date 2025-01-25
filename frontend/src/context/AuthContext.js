@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
@@ -8,32 +8,65 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check if token is present in localStorage
-    const token = localStorage.getItem('token');
-
-    if (token) {
-      // If token exists, set the user as authenticated
-      setIsAuthenticated(true);
-      setUser({ token }); // You can keep user details if needed
-      // navigate("/dashboard"); // Navigate to dashboard if authenticated
-    } else {
-      setIsAuthenticated(false);
+  // Decode JWT token (without using external libraries)
+  const decodeToken = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
     }
-  }, [navigate]); // This will run once when the component mounts
-
-  const login = (token, userData) => {
-    localStorage.setItem('token', token); // Store token in localStorage
-    setUser({ ...userData, token });
-    setIsAuthenticated(true);
-    navigate("/dashboard"); // Navigate to dashboard on login
   };
 
-  const logout = () => {
-    localStorage.removeItem('token'); // Remove token on logout
+  // Logout function
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
     setUser(null);
     setIsAuthenticated(false);
     navigate("/"); // Redirect to home or login page
+  }, [navigate]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = decodeToken(token);
+
+      if (decoded) {
+        const currentTime = Date.now() / 1000; // Current time in seconds
+        if (decoded.exp < currentTime) {
+          // Token is expired
+          logout();
+        } else {
+          // Token is valid, calculate time remaining until expiration
+          setIsAuthenticated(true);
+          setUser({ token });
+
+          const timeRemaining = (decoded.exp - currentTime) * 1000; // Convert to milliseconds
+          const timer = setTimeout(() => {
+            logout();
+          }, timeRemaining);
+
+          // Clean up timer on unmount
+          return () => clearTimeout(timer);
+        }
+      } else {
+        logout();
+      }
+    }
+  }, [logout]);
+
+  const login = (token, userData) => {
+    localStorage.setItem('token', token);
+    setUser({ ...userData, token });
+    setIsAuthenticated(true);
+    navigate("/dashboard");
   };
 
   return (
@@ -43,6 +76,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return React.useContext(AuthContext);
-};
+export const useAuth = () => React.useContext(AuthContext);
